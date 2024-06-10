@@ -1,17 +1,20 @@
 (function() {
-    const observer = new MutationObserver((mutations, obs) => {
-        let noteArea = document.getElementById('custom-message');
-        let nameElement = document.querySelector('.text-heading-xlarge.inline.t-24.v-align-middle.break-words');
-        let companyElements = document.querySelectorAll('.artdeco-list__item'); // Selector to grab all list items in the experience section
+    let observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+            if (mutation.addedNodes.length) {
+                let noteArea = document.getElementById('custom-message');
+                let nameElement = document.querySelector('.text-heading-xlarge.inline.t-24.v-align-middle.break-words');
+                let companyElement = document.querySelector('span[aria-hidden="true"]');  // Assuming this selector is correct
 
-        if (noteArea && noteArea.value === '' && nameElement && companyElements.length) {
-            let firstName = nameElement.textContent.trim().split(' ')[0];
-            let companyName = extractCurrentCompany(companyElements);
+                if (noteArea && noteArea.value === '' && nameElement && companyElement) {
+                    let firstName = nameElement.textContent.trim().split(' ')[0];
+                    let companyNameDetails = companyElement.textContent.trim();
+                    let companyName = companyNameDetails.split(' · ')[0]; // This splits the text and takes the first part, assumed to be the company name
 
-            if (companyName) {
-                let myName = 'Prayag'; // Your first name
-                noteArea.value = `Hey ${firstName}! ${myName} here. I wanted to reach out to you regarding opportunities at ${companyChess}. I am a 2-year Data Scientist/Analyst, recently graduated with MS in Information Systems from CSULB. Was wondering if you are hiring or could direct me to opportunities that might suit me. \n\nThank you,\n${myName}`;
-                obs.disconnect(); // Optionally disconnect the observer after successful operation
+                    let myName = 'Prayag'; // Directly using your first name as it doesn't change
+                    noteArea.value = `Hey ${firstName}! ${myName} here. I wanted to reach out to you regarding opportunities at ${companyName}. I am a 2 year Data Scientist/Analyst, recently graduated with MS in Information Systems from CSULB. Was wondering if you are hiring or could direct me to opportunities that might suit me. \n\nThank you,\n${myName}`;
+                    observer.disconnect(); // Stop observing after setting the value
+                }
             }
         }
     });
@@ -20,16 +23,4 @@
         childList: true,
         subtree: true
     });
-
-    function extractCurrentCompany(listItems) {
-        let currentCompanyName = '';
-        listItems.forEach(item => {
-            const dateText = item.querySelector('.t-14.t-normal.t-black--light').textContent; // Selector to find the date text
-            if (dateText.includes('Present')) {
-                const companyDetails = item.querySelector('.t-14.t-normal').textContent.trim();
-                currentCompanyName = companyDetails.split(' · ')[0]; // Assumes company name is before '·'
-            }
-        });
-        return currentCompanyName;
-    }
 })();
